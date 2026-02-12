@@ -6,6 +6,12 @@ pipeline {
   }
   stages {
     stage('Test npm') {
+      agent {
+                docker {
+                    image 'node:16-alpine' // ใช้ Image นี้ที่มี Node.js มาให้แล้ว
+                    reuseNode true
+                }
+            }
       steps {
           sh 'npm --version'
           sh 'node --version'
