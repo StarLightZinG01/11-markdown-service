@@ -6,7 +6,7 @@ pipeline {
     VERCEL_TOKEN = credentials("DevOps11-vercel-token")  // เก็บเป็น Secret Text ใน Jenkins Credentials
   }
 
-  // stages {
+  stages {
   //   stage('Install') {
   //     steps {
   //       sh 'npm ci || npm install'
@@ -39,3 +39,4 @@ pipeline {
       }
     }
   }
+}
