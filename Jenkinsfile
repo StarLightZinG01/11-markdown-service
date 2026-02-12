@@ -1,10 +1,9 @@
 pipeline {
   environment {
-    VERCEL_PROJECT_NAME = "DevOps11-Quiz1"
-    VERCEL_TOKEN = credentials("DevOps11-vercel-token")
+    VERCEL_PROJECT_NAME = 'DevOps11-Quiz1'
+    VERCEL_TOKEN = credentials('DevOps11-vercel-token') // ดึงจาก Jenkins
   }
-
-   agent {
+  agent {
     kubernetes {
       // This YAML defines the "Docker Container" you want to use
       yaml '''
@@ -20,39 +19,42 @@ pipeline {
       '''
     }
   }
-
   stages {
-
-    stage('Install') {
-      steps {
-        sh 'npm ci || npm install'
-      }
-    }
-
     stage('Test npm') {
       steps {
-        sh 'npm test'
+        container('my-builder') {
+          sh 'npm --version'
+          sh 'node --version'
+        }
       }
     }
-
     stage('Build') {
       steps {
-        sh 'npm run build'
+        container('my-builder') {
+          sh 'npm ci'
+          sh 'npm run build'
+        }
       }
     }
-
     stage('Test Build') {
       steps {
-        sh 'test -d .next'
+        container('my-builder') {
+          sh 'npm run test'
+        }
+      }
+    }
+    stage('Deploy') {
+      steps {
+        container('my-builder') {
+          sh 'npm install -g vercel@latest'
+          // Deploy using token-only (non-interactive)
+          sh '''
+            vercel link --project $VERCEL_PROJECT_NAME --token $VERCEL_TOKEN --yes
+            vercel --token $VERCEL_TOKEN --prod --confirm
+          '''
+        }
       }
     }
 
-    stage('Deploy') {
-      steps {
-        sh 'npm i -g vercel@latest'
-        sh 'vercel pull --yes --environment=production --token=$VERCEL_TOKEN || true'
-        sh 'vercel --prod --token=$VERCEL_TOKEN'
-      }
-    }
   }
 }
