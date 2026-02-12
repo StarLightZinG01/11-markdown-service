@@ -4,19 +4,8 @@ pipeline {
     VERCEL_TOKEN = credentials('DevOps11-vercel-token') // ดึงจาก Jenkins
   }
   agent {
-    kubernetes {
-      // This YAML defines the "Docker Container" you want to use
-      yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-          - name: my-builder  # We will refer to this name later
-            image: node:20-alpine
-            command:
-            - cat
-            tty: true
-      '''
+    docker {
+        image 'node:18-alpine' // ใช้ Image นี้ที่มี Node.js มาให้แล้ว
     }
   }
   stages {
